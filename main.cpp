@@ -12,7 +12,10 @@ int main() {
     //v->operator-=(*v1);
     bool b = v1 != v1;
     cout << b << endl;
-    cout << v2.y;
+    cout << v2.y<<endl;
+    v = ~v2;
+    float a = v^v2;
+    cout << a;
 
     return 0;
 }
