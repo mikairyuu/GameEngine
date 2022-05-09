@@ -132,9 +132,7 @@ public:
     }
 
     inline Vector3 operator*(Vector3 &v) const {
-        return {this->y * v.z - this->z * v.y,
-                this->z * v.x - this->x * v.z,
-                this->x * v.y - this->y * v.x};
+        return {this->x * v.x, this->y * v.y, this->z * v.z};
     }
 
     inline float operator^(Vector3 &v) const {
@@ -218,21 +216,19 @@ public:
     }
 
     inline Vector4 operator-(Vector4 &v) const {
-        return {this->x - v.x, this->y - v.y, this->z - v.z, this->z - v.z};
+        return {this->x - v.x, this->y - v.y, this->z - v.z, this->q - v.q};
     }
 
-    /* inline Vector4 operator*(Vector4 &v) const {
-         return {this->y * v.z - this->z * v.y,
-                 this->z * v.x - this->x * v.z,
-                 this->x * v.y - this->y * v.x};
-     }
- */
+    inline Vector4 operator*(Vector4 &v)
+    {
+        return {this->x * v.x, this->y * v.y, this->z * v.z, this->q * v.q};
+    }
     inline float operator^(Vector4 &v) const {
         return this->x * v.x + this->y * v.y + this->z * v.z;
     }
 
     inline Vector4 operator*(float f) const {
-        return {this->x * f, this->y * f, this->z * f, this->z * f};
+        return {this->x * f, this->y * f, this->z * f, this->q * f};
     }
 
     inline Vector4 &operator-=(Vector4 v) {

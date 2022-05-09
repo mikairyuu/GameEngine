@@ -59,7 +59,7 @@ public:
         Matrix<M, N> res;
         for (int i = 0; i < M; i++)
             for (int j = 0; j < N; j++)
-                res[i][j] = m[i][j] - this->data[i][j];
+                res[i][j] = this->data[i][j]- m[i][j];
         return res;
     }
 

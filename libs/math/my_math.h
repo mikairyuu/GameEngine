@@ -11,6 +11,10 @@ inline float ScalarProduct(Vector2 v1, Vector2 v2) {
     return v1.x * v2.x + v1.y * v2.y;
 }
 
+inline float DotProduct(Vector2 v1, Vector2 v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+}
+
 inline Vector2 Normalize(Vector2 v) {
     return v / v.getLength();
 }
@@ -41,6 +45,9 @@ inline Vector3 Normalize(Vector3 v) {
     return v / v.getLength();
 }
 
+inline float DotProduct(Vector3 v1, Vector3 v2) {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
 
 inline float GetDistance(Vector3 v1, Vector3 v2) {
     return (v2 - v1).getLength();
@@ -59,7 +66,7 @@ inline float DotProduct(Vector4 v1, Vector4 v2) {
 }
 
 
-inline Vector4 normalize(Vector4 v) {
+inline Vector4 Normalize(Vector4 v) {
     return v / v.getLength();
 }
 
@@ -160,7 +167,7 @@ inline Matrix<4, 4> GetMinorMatrix(Matrix<4, 4> m) {
                 if (k1 == 3)
                     j1++;
             }
-            res[i][t] = pow(-1, i + t) * GetDeterminant(buff);
+            res[t][i] = pow(-1, i + t) * GetDeterminant(buff);
         }
     return res;
 }
@@ -169,6 +176,7 @@ template<int M, int N>
 inline Matrix<M, N> Inverse(Matrix<M, N> m) {
     float determinant = GetDeterminant(m);
     Matrix<M, N> res = GetMinorMatrix(m);
+    res = Transpose(res);
     return res * (1 / determinant);
 }
 
@@ -218,14 +226,24 @@ inline Matrix<4, 4> Rotation(Vector3 v) {
     float cY = cosf(v.y);
     float sZ = sinf(v.z);
     float cZ = cosf(v.z);
-    Matrix<4, 4> res
-            = {
-                    {cX * cZ - sX * cY * sZ, -cX * sZ - sX * cY + cZ, sX * sY,  0.0f},
-                    {sX * cZ + cX * cY * sZ,        -sX * sZ + cX * cY * cZ, -cX * sY, 0.0f},
-                    {sY * sZ,                       sY * cZ,                 cY,       0.0f},
-                    {0.0f,                          0.0f,                    0.0f,     1.0f}
-            };
-    return res;
+    return {
+            {cX * cZ - sX * cY * sZ, -cX * sZ - sX * cY + cZ, sX * sY,  0.0f},
+            {sX * cZ + cX * cY * sZ, -sX * sZ + cX * cY * cZ, -cX * sY, 0.0f},
+            {sY * sZ,                sY * cZ,                 cY,       0.0f},
+            {0.0f,                   0.0f,                    0.0f,     1.0f}
+    };
+}
+
+inline Matrix<4, 4> Rotation(Vector3 v, float a) {
+    Vector3 R = Normalize(v);
+    float c = cosf(a);
+    float s = sinf(a);
+    return Transpose(Matrix<4, 4>{
+            {c + R.x * R.x * (1 - c),       R.x * R.y * (1 - c) - R.z * s, R.x * R.z * (1 - c) + R.y * s, 0},
+            {R.y * R.x * (1 - c) + R.z * s, c + R.y * R.y * (1 - c),       R.y * R.z * (1 - c) - R.x * s, 0},
+            {R.z * R.x * (1 - c) - R.y * s, R.z * R.y * (1 - c) + R.x * s, c + R.z * R.z * (1 - c),       0},
+            {0,                             0,                             0,                             1}
+    });
 }
 
 inline Matrix<4, 4>
@@ -234,19 +252,19 @@ CraeteModelMatrix(Matrix<4, 4> Translation_Matrix, Matrix<4, 4> Rotation_Matrix,
 }
 
 inline Matrix<4, 4> CreateViewMatrix(Vector3 from, Vector3 to, Vector3 worldUp) {
-    Vector3 forward = Normalize(from - to);
-    Vector3 right = Normalize(CrossProduct(worldUp, forward));
+    Vector3 forward = Normalize(to - from);
+    Vector3 right = Normalize(CrossProduct(forward, worldUp));
     Vector3 up = Normalize(CrossProduct(right, forward));
     Matrix<4, 4> view = {
-            {right.x,                   up.x,                   -forward.x,                 0},
-            {right.y,                   up.y,                   -forward.y,                 0},
-            {right.z,                   up.z,                   -forward.z,                 0},
+            {right.x,                     up.x,                     -forward.x,                   0},
+            {right.y,                     up.y,                     -forward.y,                   0},
+            {right.z,                     up.z,                     -forward.z,                   0},
             {-ScalarProduct(right, from), -ScalarProduct(up, from), ScalarProduct(forward, from), 1}
     };
     return view;
 }
 
-inline Matrix<4, 4> Orthographic (float left, float right, float bottom, float top, float near, float far) {
+inline Matrix<4, 4> Orthographic(float left, float right, float bottom, float top, float near, float far) {
     Matrix<4, 4> orthographic;
     orthographic[0][0] = 2 / (right - left);
     orthographic[1][1] = 2 / (top - bottom);
@@ -261,10 +279,10 @@ inline Matrix<4, 4> Orthographic (float left, float right, float bottom, float t
 inline Matrix<4, 4> Perspective(float fow, float ratio, float near, float far) {
     Matrix<4, 4> perspect;
     float tfov = tanf(fow / 2);
-    perspect[0][0] = tfov /  ratio;
+    perspect[0][0] =1/ ratio/tfov;
     perspect[1][1] = 1 / tfov;
-    perspect[2][2] = -(far + near) / (near - far);
-    perspect[2][3] = 1;
-    perspect[3][2] = 2 * far * near / (near-far);
+    perspect[2][2] = (far + near) / (near - far);
+    perspect[2][3] = -1;
+    perspect[3][2] = 2 * far * near / (near - far);
     return perspect;
 }

@@ -4,6 +4,7 @@
 #include "libs/math/vector.h"
 #include "libs/math/matrix.h"
 #include "libs/math/my_math.h"
+#include "libs/math/tests.h"
 using namespace std;
 
 int main() {
@@ -59,6 +60,8 @@ int main() {
     m1 = m;
     float t = m[3][2];
     cout << m1[1][1];*/
+    VectorTest();
+    MatrixTest();
 
     return 0;
 }
