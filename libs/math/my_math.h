@@ -82,6 +82,16 @@ inline Vector4 operator*(Matrix<4, 4> m, Vector4 v) {
     return res;
 }
 
+template<int M>
+inline Matrix<M, M> Identity(Matrix<M, M> m, float f = 1.0f){
+    Matrix<M, M> out;
+    for (int i = 0; i < M; i++){
+        out[i][i] = f;
+    }
+    return out;
+}
+
+
 template<int M, int N>
 inline Matrix<M, N> Transpose(Matrix<M, N> m) {
     Matrix<N, M> res;

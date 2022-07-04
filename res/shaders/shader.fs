@@ -1,16 +1,11 @@
- #version 330 core
+#version 330 core
 
-// Интерполированные значения из вершинного шейдера
-in vec2 UV;
+in vec2 uvTex;
 
-// Выходные данные
-out vec3 color;
+out vec4 outColor;
 
-// Значения, которые остаются неизменными для объекта.
-uniform sampler2D myTextureSampler;
+uniform sampler2D texture;
 
-void main(){
-
-    // Выходной цвет = цвету текстуры в указанных UV-координатах
-    color = texture( myTextureSampler, UV ).rgb;
+void main() {
+    outColor = texture2D(texture, uvTex);
 }
