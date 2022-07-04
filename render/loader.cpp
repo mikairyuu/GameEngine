@@ -18,7 +18,15 @@ void Shader::unbind() {
 void Shader::setUniformMat4(std::string name, Matrix<4, 4> mat) {
     glUniformMatrix4fv(glGetUniformLocation(id.id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
+void Shader::setUniformVec3(std::string name, Vector3 vec)
+{
+    glUniform3fv(glGetUniformLocation(id.id, name.c_str()), 1, &vec[0]);
+}
 
+void Shader::setUniformFloat(std::string name, float number)
+{
+    glUniform1f(glGetUniformLocation(id.id, name.c_str()), number);
+}
 std::unique_ptr<ShaderLoader> ShaderLoader::instance = nullptr;
 
 ShaderLoader &ShaderLoader::getInstance() {
