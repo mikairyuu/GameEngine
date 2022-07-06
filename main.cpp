@@ -21,6 +21,7 @@ std::vector<float> deg;
 std::vector<Vector3> scale_vec;
 std::vector<Vector3> translate_vec;
 std::vector<float> spinSpeed;
+std::vector<int> texture_id;
 
 std::vector<Vertex> getVertexes(int i) {
     switch (i) {
@@ -71,8 +72,8 @@ std::vector<Vertex> getVertexes(int i) {
         case 2: {
             GLfloat radius = 1.0f;
             GLfloat PI = 3.14;
-            int sectorCount = 72;
-            int stackCount = 24;
+            int sectorCount = 10;
+            int stackCount = 10;
             std::vector<Vertex> ans;
             float x, y, z, xy;                              // vertex position
             float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
@@ -152,7 +153,7 @@ std::vector<Vertex> getVertexes(int i) {
     }
 }
 
-void CreateObject(int i){
+void CreateObject(int i) {
     std::vector<Vertex> vertices = getVertexes(i);
 
     VertexArray VAO;
@@ -176,6 +177,7 @@ void CreateObject(int i){
     translate_vec.push_back(Vector3(0.0f));
     scale_vec.push_back(Vector3(1.0f));
     spinSpeed.push_back(0.0f);
+    texture_id.push_back(0);
 }
 
 int main() {
@@ -185,8 +187,6 @@ int main() {
     settings.stencilBits = 8; //количество битов буфера трафарета
     settings.majorVersion = 4;
     settings.minorVersion = 3;
-    // settings.attributeFlags = sf::ContextSettings::Core;
-
 
     sf::RenderWindow window(sf::VideoMode(800, 600, 32), "First Window", sf::Style::Titlebar | sf::Style::Close,
                             settings);
@@ -210,10 +210,13 @@ int main() {
 
     auto shaderProgram = ShaderLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/shaders/shader");
 
-    CreateObject(1);
+    CreateObject(2);
     //CreateObject(3);
 
-    auto texture = TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/kolkie.jpg");
+    std::vector<std::shared_ptr<Texture>> texture_vec;
+    texture_vec.push_back(
+            TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/kolkie.jpg"));
+    texture_vec.push_back(TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/me.jpg"));
 
     auto cameraPos = Vector3(3.0f, 3.0f, 3.0f);
 
@@ -251,7 +254,7 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 
         for (int i = 0; i < vectorVAO.size(); ++i) {
-            texture->bind();
+            texture_vec[texture_id[i]]->bind();
 
             shaderProgram->bind();
 
@@ -291,7 +294,7 @@ int main() {
             vectorVAO[i].unbind();
 
             vectorVBO[i].unbindAttribure();
-            texture->unbind();
+            texture_vec[texture_id[i]]->unbind();
             shaderProgram->unbind();
         }
 
@@ -321,7 +324,7 @@ int main() {
                 tabb = 3;
             }
             if (tabb == 0) {
-                float scaleV[3] = {scale_vec[selected_obj].x,scale_vec[selected_obj].y,scale_vec[selected_obj].z};
+                float scaleV[3] = {scale_vec[selected_obj].x, scale_vec[selected_obj].y, scale_vec[selected_obj].z};
                 if (ImGui::SliderFloat("Scale prop", &scaleV[0], -10.0f, 10.0f)) {
                     scaleV[1] = scaleV[0];
                     scaleV[2] = scaleV[0];
@@ -330,7 +333,7 @@ int main() {
                     scale_vec[selected_obj].z = scaleV[2];
                 }
 
-                if (ImGui::SliderFloat3("Scale",scaleV, -10.0f, 10.0f)) {
+                if (ImGui::SliderFloat3("Scale", scaleV, -10.0f, 10.0f)) {
                     scale_vec[selected_obj].x = scaleV[0];
                     scale_vec[selected_obj].y = scaleV[1];
                     scale_vec[selected_obj].z = scaleV[2];
@@ -341,7 +344,8 @@ int main() {
                 ImGui::SliderFloat("Spin speed", &spinSpeed[selected_obj], -360.0f, 360.0f);
             }
             if (tabb == 2) {
-                 float transV[3] = {translate_vec[selected_obj].x,translate_vec[selected_obj].y,translate_vec[selected_obj].z};
+                float transV[3] = {translate_vec[selected_obj].x, translate_vec[selected_obj].y,
+                                   translate_vec[selected_obj].z};
                 if (ImGui::SliderFloat3("Translate vector", transV, -10.0f, 10.0f)) {
                     translate_vec[selected_obj][0] = transV[0];
                     translate_vec[selected_obj][1] = transV[1];
@@ -349,7 +353,7 @@ int main() {
                 }
             }
             if (tabb == 3) {
-                 float lightPosV[3] = {lightPos[0], lightPos[1],lightPos[2]};
+                float lightPosV[3] = {lightPos[0], lightPos[1], lightPos[2]};
                 ImGui::SliderFloat("Shininess", &materialShine, 0.0f, 32.0f);
                 if (ImGui::SliderFloat3("LightPos", lightPosV, -10.0f, 10.0f)) {
                     lightPos[0] = lightPosV[0];
@@ -361,6 +365,10 @@ int main() {
 
         if (ImGui::Button("Change Object", ImVec2(150, 25))) {
             selected_obj = (selected_obj + 1) % vectorVAO.size();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Change  texture", ImVec2(150, 25))) {
+            texture_id[selected_obj] = (texture_id[selected_obj] + 1) % texture_vec.size();
         }
         if (ImGui::Button("Create Cube", ImVec2(150, 25))) {
             CreateObject(1);
