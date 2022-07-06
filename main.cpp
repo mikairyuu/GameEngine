@@ -1,6 +1,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 #include "imgui.h"
 #include "imgui-SFML.h"
@@ -14,6 +15,168 @@
 
 
 using namespace std;
+auto vectorVAO = std::vector<VertexArray>();
+auto vectorVBO = std::vector<VertexBuffer>();
+std::vector<float> deg;
+std::vector<Vector3> scale_vec;
+std::vector<Vector3> translate_vec;
+std::vector<float> spinSpeed;
+
+std::vector<Vertex> getVertexes(int i) {
+    switch (i) {
+        case 1:
+            return {
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+
+                    Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, 0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)},
+
+                    Vertex{Vector3(-0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f)},
+
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)},
+
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+
+                    Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+            };
+        case 2: {
+            GLfloat radius = 1.0f;
+            GLfloat PI = 3.14;
+            int sectorCount = 72;
+            int stackCount = 24;
+            std::vector<Vertex> ans;
+            float x, y, z, xy;                              // vertex position
+            float nx, ny, nz, lengthInv = 1.0f / radius;    // vertex normal
+            float s, t;                                     // vertex texCoord
+
+            float sectorStep = 2 * PI / sectorCount;
+            float stackStep = PI / stackCount;
+            float sectorAngle, stackAngle;
+
+            for (int i = 0; i <= stackCount; ++i) {
+                stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+                xy = radius * cos(stackAngle);             // r * cos(u)
+                z = radius * sin(stackAngle);              // r * sin(u)
+
+                // add (sectorCount+1) vertices per stack
+                // the first and last vertices have same position and normal, but different tex coords
+                for (int j = 0; j <= sectorCount; ++j) {
+                    sectorAngle = j * sectorStep;           // starting from 0 to 2pi
+
+                    // vertex position (x, y, z)
+                    x = xy * cos(sectorAngle);             // r * cos(u) * cos(v)
+                    y = xy * sin(sectorAngle);             // r * cos(u) * sin(v)
+                    auto pos = Vector3(x, y, z);
+
+                    // normalized vertex normal (nx, ny, nz)
+                    nx = x * lengthInv;
+                    ny = y * lengthInv;
+                    nz = z * lengthInv;
+
+                    // vertex tex coord (s, t) range between [0, 1]
+                    s = (float) j / sectorCount;
+                    t = (float) i / stackCount;
+                    auto uv = Vector2(s, t);
+                    ans.push_back(Vertex{pos, uv, Vector3(nx, ny, nz)});
+                }
+            }
+            return ans;
+        }
+        case 3: {
+            GLfloat y_ = 0.366025;
+            GLfloat med = 0.57735;
+            GLfloat height = 0.366025;
+            GLfloat z_ = 0.316497;
+
+            auto res = {
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.0f, -0.5, 0.5f), Vector2(0.5f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.0f, -0.5, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.0f, z_, 0.5f - med), Vector2(0.5f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.0f, -0.5, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.0f, z_, 0.5f - med), Vector2(0.5f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+
+                    Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
+                    Vertex{Vector3(0.0f, z_, 0.5f - med), Vector2(0.5f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
+
+            };
+            return res;
+        }
+        case 4: {
+            return {
+                    Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(0.5f, 0.5f, 0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
+                    Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
+            };
+        }
+        default:
+            return {};
+    }
+}
+
+void CreateObject(int i){
+    std::vector<Vertex> vertices = getVertexes(i);
+
+    VertexArray VAO;
+    VAO.bind();
+
+    VertexBuffer VBO;
+    VBO.bind(vertices);
+
+    VBO.bindAttribute(0, 3, sizeof(Vertex), offsetof(Vertex, pos));
+    VBO.bindAttribute(1, 2, sizeof(Vertex), offsetof(Vertex, uv));
+    VBO.bindAttribute(2, 3, sizeof(Vertex), offsetof(Vertex, norm));
+
+
+    VAO.unbind();
+    VBO.unbind();
+
+    vectorVAO.push_back(VAO);
+    vectorVBO.push_back(VBO);
+
+    deg.push_back(0.0f);
+    translate_vec.push_back(Vector3(0.0f));
+    scale_vec.push_back(Vector3(1.0f));
+    spinSpeed.push_back(0.0f);
+}
 
 int main() {
 
@@ -47,65 +210,8 @@ int main() {
 
     auto shaderProgram = ShaderLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/shaders/shader");
 
-    std::vector<Vertex> vertices = {
-            Vertex{Vector3(-0.5f, -0.5f, -0.5f),Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
-            Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
-            Vertex{Vector3(0.5f, 0.5f, -0.5f), 	Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
-            Vertex{Vector3(0.5f, 0.5f, -0.5f), 	Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
-            Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, -1.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, -0.5f),Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
-
-            Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)},
-            Vertex{Vector3(0.5f, -0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)},
-            Vertex{Vector3(0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f)},
-            Vertex{Vector3(0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f)},
-            Vertex{Vector3(-0.5f, 0.5f, 0.5f), 	Vector2(0.0f, 1.0f), Vector3(0.0f, 0.0f, 1.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, 1.0f)},
-
-            Vertex{Vector3(-0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, -0.5f),Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, -0.5f),Vector2(0.0f, 1.0f), Vector3(-1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f)},
-
-            Vertex{Vector3(0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(0.5f, 0.5f, -0.5f), 	Vector2(1.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(0.5f, -0.5f, 0.5f), 	Vector2(0.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)},
-            Vertex{Vector3(0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(1.0f, 0.0f, 0.0f)},
-
-            Vertex{Vector3(-0.5f, -0.5f, -0.5f),Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(0.5f, -0.5f, -0.5f), Vector2(1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(0.5f, -0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(0.5f, -0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, 0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, -0.5f, -0.5f),Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
-
-            Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(0.5f, 0.5f, -0.5f), 	Vector2(1.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(0.5f, 0.5f, 0.5f), 	Vector2(1.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, 0.5f, 0.5f), 	Vector2(0.0f, 0.0f), Vector3(0.0f, -1.0f, 0.0f)},
-            Vertex{Vector3(-0.5f, 0.5f, -0.5f), Vector2(0.0f, 1.0f), Vector3(0.0f, -1.0f, 0.0f)},
-    };
-
-    VertexArray VAO;
-    VAO.bind();
-
-    VertexBuffer VBO;
-    VBO.bind(vertices);
-
-    VBO.bindAttribute(0, 3, sizeof(Vertex), offsetof(Vertex, pos));
-    VBO.bindAttribute(1, 2, sizeof(Vertex), offsetof(Vertex, uv));
-    VBO.bindAttribute(2, 3, sizeof(Vertex), offsetof(Vertex, norm));
-
-
-
-    VAO.unbind();
-    VBO.unbind();
-
+    CreateObject(1);
+    //CreateObject(3);
 
     auto texture = TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/kolkie.jpg");
 
@@ -120,12 +226,7 @@ int main() {
     auto materialShine = 32.0f;
 
     bool isGo = true;
-    float deg = 0.0f;
-    Vector3 scale_vec(1.0f);
-    Vector3 translate_vec(0.0f);
-    float scaleV[3] = {1.0f, 1.0f, 1.0f};
-    float spinSpeed = 0.0f;
-
+    int selected_obj = 0;
     sf::Clock deltaClock;
     while (isGo) {
         sf::Event windowEvent{};
@@ -149,51 +250,54 @@ int main() {
 
         glEnable(GL_DEPTH_TEST);
 
-        texture->bind();
+        for (int i = 0; i < vectorVAO.size(); ++i) {
+            texture->bind();
 
-        shaderProgram->bind();
+            shaderProgram->bind();
 
-        VAO.bind();
+            vectorVAO[i].bind();
 
-        Matrix<4, 4> translation = Transform(translate_vec);
+            Matrix<4, 4> translation = Transform(translate_vec[i]);
 
-        Matrix<4, 4> rotation = Rotation(Vector3(0, 1, 0), GetRadians(deg));
+            Matrix<4, 4> rotation = Rotation(Vector3(0, 1, 0), GetRadians(deg[i]));
 
-        deg += spinSpeed;
+            deg[i] += spinSpeed[i];
 
-        Matrix<4, 4> scale = Scale(scale_vec);
+            Matrix<4, 4> scale = Scale(scale_vec[i]);
 
-        Matrix<4, 4> model;
-        model = CraeteModelMatrix(translation, rotation, scale);// * identity(model);
+            Matrix<4, 4> model;
+            model = CraeteModelMatrix(translation, rotation, scale);// * identity(model);
 
-        Matrix<4, 4> view = CreateViewMatrix(cameraPos, Vector3(0.0f, 0.0f, 0.0f),
-                                             Vector3(0.0f, 1.0f, 0.0f));
-        Matrix<4, 4> proj = Perspective(GetRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+            Matrix<4, 4> view = CreateViewMatrix(cameraPos, Vector3(0.0f, 0.0f, 0.0f),
+                                                 Vector3(0.0f, 1.0f, 0.0f));
+            Matrix<4, 4> proj = Perspective(GetRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        shaderProgram->setUniformVec3("light.ambient", lightAmb);
-        shaderProgram->setUniformVec3("light.diffuse", lightDiff);
-        shaderProgram->setUniformVec3("light.specular", lightSpec);
-        shaderProgram->setUniformVec3("light.position", lightPos);
+            shaderProgram->setUniformVec3("light.ambient", lightAmb);
+            shaderProgram->setUniformVec3("light.diffuse", lightDiff);
+            shaderProgram->setUniformVec3("light.specular", lightSpec);
+            shaderProgram->setUniformVec3("light.position", lightPos);
 
-        shaderProgram->setUniformVec3("material.specular", materialSpec);
-        shaderProgram->setUniformFloat("material.shininess", materialShine);
+            shaderProgram->setUniformVec3("material.specular", materialSpec);
+            shaderProgram->setUniformFloat("material.shininess", materialShine);
 
-        shaderProgram->setUniformVec3("viewPos", cameraPos);
+            shaderProgram->setUniformVec3("viewPos", cameraPos);
 
-        shaderProgram->setUniformMat4("model", model);
-        shaderProgram->setUniformMat4("view", view);
-        shaderProgram->setUniformMat4("projection", proj);
+            shaderProgram->setUniformMat4("model", model);
+            shaderProgram->setUniformMat4("view", view);
+            shaderProgram->setUniformMat4("projection", proj);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        VAO.unbind();
+            vectorVAO[i].unbind();
 
-        VBO.unbindAttribure();
-        texture->unbind();
-        shaderProgram->unbind();
+            vectorVBO[i].unbindAttribure();
+            texture->unbind();
+            shaderProgram->unbind();
+        }
 
-        if (abs(deg) > 360)
-            deg = 0.0f;
+
+        if (abs(deg[selected_obj]) > 360)
+            deg[selected_obj] = 0.0f;
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
@@ -201,70 +305,77 @@ int main() {
         {
             static int tabb = 0;
             ImGui::SameLine();
-            if (ImGui::Button("Scale", ImVec2(150, 25)))
-            {
+            if (ImGui::Button("Scale", ImVec2(150, 25))) {
                 tabb = 0;
             }
             ImGui::SameLine();
-            if (ImGui::Button("Rotate", ImVec2(150, 25)))
-            {
+            if (ImGui::Button("Rotate", ImVec2(150, 25))) {
                 tabb = 1;
             }
             ImGui::SameLine();
-            if (ImGui::Button("Translate", ImVec2(150, 25)))
-            {
+            if (ImGui::Button("Translate", ImVec2(150, 25))) {
                 tabb = 2;
             }
             ImGui::SameLine();
-            if (ImGui::Button("Light", ImVec2(150, 25)))
-            {
+            if (ImGui::Button("Light", ImVec2(150, 25))) {
                 tabb = 3;
             }
-            if (tabb == 0)
-            {
-                static float scaleV[3] = {1.0f, 1.0f, 1.0f};
-                if (ImGui::SliderFloat("Scale prop", &scaleV[0], -10.0f, 10.0f))
-                {
+            if (tabb == 0) {
+                float scaleV[3] = {scale_vec[selected_obj].x,scale_vec[selected_obj].y,scale_vec[selected_obj].z};
+                if (ImGui::SliderFloat("Scale prop", &scaleV[0], -10.0f, 10.0f)) {
                     scaleV[1] = scaleV[0];
                     scaleV[2] = scaleV[0];
-                    scale_vec.x = scaleV[0];
-                    scale_vec.y = scaleV[1];
-                    scale_vec.z = scaleV[2];
+                    scale_vec[selected_obj].x = scaleV[0];
+                    scale_vec[selected_obj].y = scaleV[1];
+                    scale_vec[selected_obj].z = scaleV[2];
                 }
 
-                if (ImGui::SliderFloat3("Scale", scaleV, -10.0f, 10.0f))
-                {
-                    scale_vec.x = scaleV[0];
-                    scale_vec.y = scaleV[1];
-                    scale_vec.z = scaleV[2];
+                if (ImGui::SliderFloat3("Scale",scaleV, -10.0f, 10.0f)) {
+                    scale_vec[selected_obj].x = scaleV[0];
+                    scale_vec[selected_obj].y = scaleV[1];
+                    scale_vec[selected_obj].z = scaleV[2];
                 }
             }
-            if (tabb == 1)
-            {
-                ImGui::SliderFloat("Degree", &deg, -360.0f, 360.0f);
-                ImGui::SliderFloat("Spin speed", &spinSpeed, -360.0f, 360.0f);
+            if (tabb == 1) {
+                ImGui::SliderFloat("Degree", &deg[selected_obj], -360.0f, 360.0f);
+                ImGui::SliderFloat("Spin speed", &spinSpeed[selected_obj], -360.0f, 360.0f);
             }
-            if (tabb == 2)
-            {
-                static float transV[3] = {0.0f, 0.0f, 0.0f};
-                if(ImGui::SliderFloat3("Translate vector", transV, -10.0f, 10.0f))
-                {
-                    translate_vec[0] = transV[0];
-                    translate_vec[1] = transV[1];
-                    translate_vec[2] = transV[2];
+            if (tabb == 2) {
+                 float transV[3] = {translate_vec[selected_obj].x,translate_vec[selected_obj].y,translate_vec[selected_obj].z};
+                if (ImGui::SliderFloat3("Translate vector", transV, -10.0f, 10.0f)) {
+                    translate_vec[selected_obj][0] = transV[0];
+                    translate_vec[selected_obj][1] = transV[1];
+                    translate_vec[selected_obj][2] = transV[2];
                 }
             }
-            if(tabb == 3)
-            {
-                static float lightPosV[3] = {0.0f, 0.0f, 0.0f};
+            if (tabb == 3) {
+                 float lightPosV[3] = {lightPos[0], lightPos[1],lightPos[2]};
                 ImGui::SliderFloat("Shininess", &materialShine, 0.0f, 32.0f);
-                if(ImGui::SliderFloat3("LightPos", lightPosV, -10.0f, 10.0f))
-                {
+                if (ImGui::SliderFloat3("LightPos", lightPosV, -10.0f, 10.0f)) {
                     lightPos[0] = lightPosV[0];
                     lightPos[1] = lightPosV[1];
                     lightPos[2] = lightPosV[2];
                 }
             }
+        }
+
+        if (ImGui::Button("Change Object", ImVec2(150, 25))) {
+            selected_obj = (selected_obj + 1) % vectorVAO.size();
+        }
+        if (ImGui::Button("Create Cube", ImVec2(150, 25))) {
+            CreateObject(1);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Create Sphere", ImVec2(150, 25))) {
+            CreateObject(2);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Create trian", ImVec2(150, 25))) {
+            CreateObject(3);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Create surface", ImVec2(150, 25))) {
+            CreateObject(4);
         }
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
