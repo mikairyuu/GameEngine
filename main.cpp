@@ -18,11 +18,12 @@
 using namespace std;
 auto vectorVAO = std::vector<VertexArray>();
 auto vectorVBO = std::vector<VertexBuffer>();
-std::vector<float> angle_vec;
+std::vector<Vector3> angle_vec;
 std::vector<Vector3> scale_vec;
 std::vector<Vector3> translate_vec;
 std::vector<float> spin_speed_vec;
 std::vector<int> texture_id_vec;
+std::vector<Vector3> angle;
 
 std::vector<Vertex> getVertexes(int i) {
     switch (i) {
@@ -174,11 +175,12 @@ void CreateObject(int i) {
     vectorVAO.push_back(VAO);
     vectorVBO.push_back(VBO);
 
-    angle_vec.push_back(0.0f);
+    angle_vec.push_back(Vector3(0.0f));
     translate_vec.push_back(Vector3(0.0f));
     scale_vec.push_back(Vector3(1.0f));
     spin_speed_vec.push_back(0.0f);
     texture_id_vec.push_back(0);
+    angle.push_back(Vector3(0.0f));
 }
 
 int main() {
@@ -213,13 +215,13 @@ int main() {
 
     auto shaderProgram = ShaderLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/shaders/shader");
 
-    CreateObject(2);
-    //CreateObject(3);
+    CreateObject(1);
 
     std::vector<std::shared_ptr<Texture>> texture_vec;
     texture_vec.push_back(
             TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/kolkie.jpg"));
-    texture_vec.push_back(TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/me.jpg"));
+    texture_vec.push_back(
+            TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/me.jpg"));
 
     auto cameraPos = Vector3(3.0f, 3.0f, 3.0f);
 
@@ -231,8 +233,10 @@ int main() {
     auto materialSpec = Vector3(0.5f, 0.5f, 0.5f);
     auto materialShine = 32.0f;
 
+
     bool isGo = true;
     int selected_obj = 0;
+
     sf::Clock deltaClock;
     while (isGo) {
         sf::Event windowEvent{};
@@ -265,9 +269,10 @@ int main() {
 
             Matrix<4, 4> translation = Transform(translate_vec[i]);
 
-            Matrix<4, 4> rotation = Rotation(Vector3(0, 1, 0), GetRadians(angle_vec[i]));
 
-            angle_vec[i] += spin_speed_vec[i];
+            Matrix<4, 4> rotation = Rotation(Vector3(1, 0, 0), GetRadians(angle[i][0])) *
+                                    Rotation(Vector3(0, 1, 0), GetRadians(angle[i][1])) *
+                                    Rotation(Vector3(0, 0, 1), GetRadians(angle[i][2]));
 
             Matrix<4, 4> scale = Scale(scale_vec[i]);
 
@@ -302,9 +307,6 @@ int main() {
         }
 
 
-        if (abs(angle_vec[selected_obj]) > 360)
-            angle_vec[selected_obj] = 0.0f;
-
         ImGui::SFML::Update(window, deltaClock.restart());
 
         ImGui::Begin("Window");
@@ -325,8 +327,14 @@ int main() {
                 scale_vec[selected_obj].z = scaleV[2];
             }
 
-            ImGui::SliderFloat("Rotate", &angle_vec[selected_obj], -360.0f, 360.0f);
-            ImGui::SliderFloat("Rotate speed", &spin_speed_vec[selected_obj], -360.0f, 360.0f);
+            float angleV[3] = {angle_vec[selected_obj].x, angle_vec[selected_obj].y, angle_vec[selected_obj].z};
+            if (ImGui::SliderFloat3("Rotate", angleV, -360.0f, 360.0f)) {
+                for (int i = 0; i < 3; ++i)
+                    if (angleV[i] != angle_vec[selected_obj][i]) {
+                        angle_vec[selected_obj][i] = angleV[i];
+                        angle[selected_obj][i] = angleV[i];
+                    }
+            }
 
             float transV[3] = {translate_vec[selected_obj].x, translate_vec[selected_obj].y,
                                translate_vec[selected_obj].z};
@@ -334,6 +342,7 @@ int main() {
                 translate_vec[selected_obj][0] = transV[0];
                 translate_vec[selected_obj][1] = transV[1];
                 translate_vec[selected_obj][2] = transV[2];
+
             }
             float lightPosV[3] = {lightPos[0], lightPos[1], lightPos[2]};
             ImGui::SliderFloat("Shininess", &materialShine, 0.0f, 32.0f);
