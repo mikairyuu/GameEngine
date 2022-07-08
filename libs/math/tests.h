@@ -10,20 +10,25 @@
 #include "glm/gtc/type_ptr.hpp"
 
 template<typename T, typename Ti>
-bool IsVectorEqual(T my_vec, Ti glm_vec, int size) {
-    for (int i = 0; i < size; i++)
-        if (my_vec[i] - remainderf(my_vec[i], pow(10, -4)) != glm_vec[i] - remainderf(glm_vec[i], pow(10, -4)))
+bool CheckVector(T my_vec, Ti glm_vec, int size) {
+    for (int i = 0; i < size; i++) {
+        auto first = (int)(my_vec[i] * 10000) / 10000.;
+        auto second = (int)(glm_vec[i] * 10000) / 10000.;
+        if (first != second)
             return false;
+    }
     return true;
 }
 
 template<typename T, typename Ti>
-bool IsMatrixEqual(T my_mat, Ti glm_mat, int size) {
+bool CheckMatrix(T my_mat, Ti glm_mat, int size) {
     for (int i = 0; i < size; i++)
-        for (int j = 0; j < size; j++)
-            if (my_mat[i][j] - remainderf(my_mat[i][j], pow(10, -3)) !=
-                glm_mat[i][j] - remainderf(glm_mat[i][j], pow(10, -3)))
+        for (int j = 0; j < size; j++) {
+            auto first = (int)(my_mat[i][j] * 1000) / 1000.;
+            auto second = (int)(glm_mat[i][j] * 1000) / 1000.;
+            if (first != second)
                 return false;
+        }
     return true;
 }
 
@@ -43,33 +48,33 @@ void VectorTest() {
             my_vec2[i] = temp;
         }
         // init
-        assert(IsVectorEqual(my_vec1, glm_vec1, 2));
-        assert(IsVectorEqual(my_vec2, glm_vec2, 2));
+        assert(CheckVector(my_vec1, glm_vec1, 2));
+        assert(CheckVector(my_vec2, glm_vec2, 2));
         // +
-        assert(IsVectorEqual(my_vec1 + my_vec2, glm_vec1 + glm_vec2, 2));
+        assert(CheckVector(my_vec1 + my_vec2, glm_vec1 + glm_vec2, 2));
         // -
-        assert(IsVectorEqual(my_vec1 - my_vec2, glm_vec1 - glm_vec2, 2));
+        assert(CheckVector(my_vec1 - my_vec2, glm_vec1 - glm_vec2, 2));
         // *
         {
             int temp = rand() % 1000;
             auto temp_glm_vec = glm_vec1;
-            assert(IsVectorEqual(my_vec1 * temp, temp_glm_vec.operator*=(temp), 2));
+            assert(CheckVector(my_vec1 * temp, temp_glm_vec.operator*=(temp), 2));
             temp = rand() % 1000;
             temp_glm_vec = glm_vec2;
-            assert(IsVectorEqual(my_vec2 * temp, temp_glm_vec.operator*=(temp), 2));
-            assert(IsVectorEqual(my_vec1 * my_vec2, glm_vec1 * glm_vec2, 2));
+            assert(CheckVector(my_vec2 * temp, temp_glm_vec.operator*=(temp), 2));
+            assert(CheckVector(my_vec1 * my_vec2, glm_vec1 * glm_vec2, 2));
         }
         // DotProduct
         assert(DotProduct(my_vec1, my_vec2) == glm::dot(glm_vec1, glm_vec2));
         // Normalize
-        assert(IsVectorEqual(Normalize(my_vec1), glm::normalize(glm_vec1), 2));
-        assert(IsVectorEqual(Normalize(my_vec2), glm::normalize(glm_vec2), 2));
+        assert(CheckVector(Normalize(my_vec1), glm::normalize(glm_vec1), 2));
+        assert(CheckVector(Normalize(my_vec2), glm::normalize(glm_vec2), 2));
         // Length
         assert((my_vec1.getLength()) == glm::length(glm_vec1));
         assert(my_vec2.getLength() == glm::length(glm_vec2));
         // Invert
-        assert(IsVectorEqual(my_vec1.getInvertVector(), -glm_vec1, 2));
-        assert(IsVectorEqual(~my_vec2, -glm_vec2, 2));
+        assert(CheckVector(my_vec1.getInvertVector(), -glm_vec1, 2));
+        assert(CheckVector(~my_vec2, -glm_vec2, 2));
 
     }
 
@@ -88,35 +93,35 @@ void VectorTest() {
             my_vec2[i] = temp;
         }
         // init
-        assert(IsVectorEqual(my_vec1, glm_vec1, 3));
-        assert(IsVectorEqual(my_vec2, glm_vec2, 3));
+        assert(CheckVector(my_vec1, glm_vec1, 3));
+        assert(CheckVector(my_vec2, glm_vec2, 3));
         // +
-        assert(IsVectorEqual(my_vec1 + my_vec2, glm_vec1 + glm_vec2, 3));
+        assert(CheckVector(my_vec1 + my_vec2, glm_vec1 + glm_vec2, 3));
         // -
-        assert(IsVectorEqual(my_vec1 - my_vec2, glm_vec1 - glm_vec2, 3));
+        assert(CheckVector(my_vec1 - my_vec2, glm_vec1 - glm_vec2, 3));
         // *
         {
             int temp = rand() % 1000;
             auto temp_glm_vec = glm_vec1;
-            assert(IsVectorEqual(my_vec1 * temp, temp_glm_vec.operator*=(temp), 3));
+            assert(CheckVector(my_vec1 * temp, temp_glm_vec.operator*=(temp), 3));
             temp = rand() % 1000;
             temp_glm_vec = glm_vec2;
-            assert(IsVectorEqual(my_vec2 * temp, temp_glm_vec.operator*=(temp), 3));
-            assert(IsVectorEqual(my_vec1 * my_vec2, glm_vec1 * glm_vec2, 3));
+            assert(CheckVector(my_vec2 * temp, temp_glm_vec.operator*=(temp), 3));
+            assert(CheckVector(my_vec1 * my_vec2, glm_vec1 * glm_vec2, 3));
         }
         // DotProduct
         assert(DotProduct(my_vec1, my_vec2) == glm::dot(glm_vec1, glm_vec2));
         // Normalize
-        assert(IsVectorEqual(Normalize(my_vec1), glm::normalize(glm_vec1), 3));
-        assert(IsVectorEqual(Normalize(my_vec2), glm::normalize(glm_vec2), 3));
+        assert(CheckVector(Normalize(my_vec1), glm::normalize(glm_vec1), 3));
+        assert(CheckVector(Normalize(my_vec2), glm::normalize(glm_vec2), 3));
         // Length
         assert(my_vec1.getLength() == glm::length(glm_vec1));
         assert(my_vec2.getLength() == glm::length(glm_vec2));
         // CrossProduct
-        assert(IsVectorEqual(CrossProduct(my_vec1, my_vec2), glm::cross(glm_vec1, glm_vec2), 3));
+        assert(CheckVector(CrossProduct(my_vec1, my_vec2), glm::cross(glm_vec1, glm_vec2), 3));
         // Invert
-        assert(IsVectorEqual(my_vec1.getInvertVector(), -glm_vec1, 3));
-        assert(IsVectorEqual(~my_vec2, -glm_vec2, 3));
+        assert(CheckVector(my_vec1.getInvertVector(), -glm_vec1, 3));
+        assert(CheckVector(~my_vec2, -glm_vec2, 3));
 
 
     }
@@ -136,38 +141,38 @@ void VectorTest() {
             my_vec2[i] = temp;
         }
         // init
-        assert(IsVectorEqual(my_vec1, glm_vec1, 4));
-        assert(IsVectorEqual(my_vec2, glm_vec2, 3));
+        assert(CheckVector(my_vec1, glm_vec1, 4));
+        assert(CheckVector(my_vec2, glm_vec2, 3));
         // +
-        assert(IsVectorEqual(my_vec1 + my_vec2, glm_vec1 + glm_vec2, 4));
+        assert(CheckVector(my_vec1 + my_vec2, glm_vec1 + glm_vec2, 4));
         // -
-        assert(IsVectorEqual(my_vec1 - my_vec2, glm_vec1 - glm_vec2, 4));
+        assert(CheckVector(my_vec1 - my_vec2, glm_vec1 - glm_vec2, 4));
         // *
         {
             int temp = rand() % 1000;
             auto temp_glm_vec = glm_vec1;
-            assert(IsVectorEqual(my_vec1 * temp, temp_glm_vec.operator*=(temp), 4));
+            assert(CheckVector(my_vec1 * temp, temp_glm_vec.operator*=(temp), 4));
             temp = rand() % 1000;
             temp_glm_vec = glm_vec2;
-            assert(IsVectorEqual(my_vec2 * temp, temp_glm_vec.operator*=(temp), 4));
-            assert(IsVectorEqual(my_vec1 * my_vec2, glm_vec1 * glm_vec2, 4));
+            assert(CheckVector(my_vec2 * temp, temp_glm_vec.operator*=(temp), 4));
+            assert(CheckVector(my_vec1 * my_vec2, glm_vec1 * glm_vec2, 4));
         }
         // DotProduct
         assert(DotProduct(my_vec1, my_vec2) == glm::dot(glm_vec1, glm_vec2));
         // Normalize
-        assert(IsVectorEqual(Normalize(my_vec1), glm::normalize(glm_vec1), 4));
-        assert(IsVectorEqual(Normalize(my_vec2), glm::normalize(glm_vec2), 4));
+        assert(CheckVector(Normalize(my_vec1), glm::normalize(glm_vec1), 4));
+        assert(CheckVector(Normalize(my_vec2), glm::normalize(glm_vec2), 4));
         // Length
         assert(my_vec1.getLength() == glm::length(glm_vec1));
         assert(my_vec2.getLength() == glm::length(glm_vec2));
 
         // Invert
-        assert(IsVectorEqual(my_vec1.getInvertVector(), -glm_vec1, 4));
-        assert(IsVectorEqual(~my_vec2, -glm_vec2, 4));
+        assert(CheckVector(my_vec1.getInvertVector(), -glm_vec1, 4));
+        assert(CheckVector(~my_vec2, -glm_vec2, 4));
 
     }
 
-    std::cout << "Vector 1" << std::endl;
+    std::cout << "Vector success" << std::endl;
 }
 
 void MatrixTest() {
@@ -190,30 +195,30 @@ void MatrixTest() {
         }
 
         // init
-        assert(IsMatrixEqual(my_mat1, glm_mat1, 2));
-        assert(IsMatrixEqual(my_mat2, glm_mat2, 2));
+        assert(CheckMatrix(my_mat1, glm_mat1, 2));
+        assert(CheckMatrix(my_mat2, glm_mat2, 2));
         // +
-        assert(IsMatrixEqual(my_mat1 + my_mat2, glm_mat1 + glm_mat2, 2));
+        assert(CheckMatrix(my_mat1 + my_mat2, glm_mat1 + glm_mat2, 2));
         // -
-        assert(IsMatrixEqual(my_mat1 - my_mat2, glm_mat1 - glm_mat2, 2));
+        assert(CheckMatrix(my_mat1 - my_mat2, glm_mat1 - glm_mat2, 2));
         // *
         {
             int temp = rand() % 1000;
             auto temp_glm_mat = glm_mat1;
-            assert(IsMatrixEqual(my_mat1 * temp, temp_glm_mat.operator*=(temp), 2));
+            assert(CheckMatrix(my_mat1 * temp, temp_glm_mat.operator*=(temp), 2));
             temp = rand() % 1000;
             temp_glm_mat = glm_mat2;
-            assert(IsMatrixEqual(my_mat2 * temp, temp_glm_mat.operator*=(temp), 2));
-            assert(IsMatrixEqual(my_mat1 * my_mat2, glm_mat1 * glm_mat2, 2));
-            assert(IsMatrixEqual(my_mat2 * my_mat1, glm_mat2 * glm_mat1, 2));
+            assert(CheckMatrix(my_mat2 * temp, temp_glm_mat.operator*=(temp), 2));
+            assert(CheckMatrix(my_mat1 * my_mat2, glm_mat1 * glm_mat2, 2));
+            assert(CheckMatrix(my_mat2 * my_mat1, glm_mat2 * glm_mat1, 2));
         }
 
         // Transpose
-        assert(IsMatrixEqual(Transpose(my_mat1), glm::transpose(glm_mat1), 2));
-        assert(IsMatrixEqual(Transpose(my_mat2), glm::transpose(glm_mat2), 2));
+        assert(CheckMatrix(Transpose(my_mat1), glm::transpose(glm_mat1), 2));
+        assert(CheckMatrix(Transpose(my_mat2), glm::transpose(glm_mat2), 2));
         // Inverse
-        assert(IsMatrixEqual(Inverse(my_mat1), glm::inverse(glm_mat1), 2));
-        assert(IsMatrixEqual(Inverse(my_mat2), glm::inverse(glm_mat2), 2));
+        assert(CheckMatrix(Inverse(my_mat1), glm::inverse(glm_mat1), 2));
+        assert(CheckMatrix(Inverse(my_mat2), glm::inverse(glm_mat2), 2));
     }
     { // mat3 test
         Matrix<3, 3> my_mat1;
@@ -233,29 +238,29 @@ void MatrixTest() {
         }
 
         // init
-        assert(IsMatrixEqual(my_mat1, glm_mat1, 3));
-        assert(IsMatrixEqual(my_mat2, glm_mat2, 3));
+        assert(CheckMatrix(my_mat1, glm_mat1, 3));
+        assert(CheckMatrix(my_mat2, glm_mat2, 3));
         // +
-        assert(IsMatrixEqual(my_mat1 + my_mat2, glm_mat1 + glm_mat2, 3));
+        assert(CheckMatrix(my_mat1 + my_mat2, glm_mat1 + glm_mat2, 3));
         // -
-        assert(IsMatrixEqual(my_mat1 - my_mat2, glm_mat1 - glm_mat2, 3));
+        assert(CheckMatrix(my_mat1 - my_mat2, glm_mat1 - glm_mat2, 3));
         // *
         {
             int temp = rand() % 1000;
             auto temp_glm_mat = glm_mat1;
-            assert(IsMatrixEqual(my_mat1 * temp, temp_glm_mat.operator*=(temp), 3));
+            assert(CheckMatrix(my_mat1 * temp, temp_glm_mat.operator*=(temp), 3));
             temp = rand() % 1000;
             temp_glm_mat = glm_mat2;
-            assert(IsMatrixEqual(my_mat2 * temp, temp_glm_mat.operator*=(temp), 3));
-            assert(IsMatrixEqual(my_mat1 * my_mat2, glm_mat1 * glm_mat2, 3));
-            assert(IsMatrixEqual(my_mat2 * my_mat1, glm_mat2 * glm_mat1, 3));
+            assert(CheckMatrix(my_mat2 * temp, temp_glm_mat.operator*=(temp), 3));
+            assert(CheckMatrix(my_mat1 * my_mat2, glm_mat1 * glm_mat2, 3));
+            assert(CheckMatrix(my_mat2 * my_mat1, glm_mat2 * glm_mat1, 3));
         }
         // Transpose
-        assert(IsMatrixEqual(Transpose(my_mat1), glm::transpose(glm_mat1), 3));
-        assert(IsMatrixEqual(Transpose(my_mat2), glm::transpose(glm_mat2), 3));
+        assert(CheckMatrix(Transpose(my_mat1), glm::transpose(glm_mat1), 3));
+        assert(CheckMatrix(Transpose(my_mat2), glm::transpose(glm_mat2), 3));
         // Inverse
-        assert(IsMatrixEqual(Inverse(my_mat1), glm::inverse(glm_mat1), 3));
-        assert(IsMatrixEqual(Inverse(my_mat2), glm::inverse(glm_mat2), 3));
+        assert(CheckMatrix(Inverse(my_mat1), glm::inverse(glm_mat1), 3));
+        assert(CheckMatrix(Inverse(my_mat2), glm::inverse(glm_mat2), 3));
     }
     { // mat4 test
         Matrix<4, 4> my_mat1;
@@ -275,47 +280,47 @@ void MatrixTest() {
         }
 
         // init
-        assert(IsMatrixEqual(my_mat1, glm_mat1, 4));
-        assert(IsMatrixEqual(my_mat2, glm_mat2, 4));
+        assert(CheckMatrix(my_mat1, glm_mat1, 4));
+        assert(CheckMatrix(my_mat2, glm_mat2, 4));
         // +
-        assert(IsMatrixEqual(my_mat1 + my_mat2, glm_mat1 + glm_mat2, 4));
+        assert(CheckMatrix(my_mat1 + my_mat2, glm_mat1 + glm_mat2, 4));
         // -
-        assert(IsMatrixEqual(my_mat1 - my_mat2, glm_mat1 - glm_mat2, 4));
+        assert(CheckMatrix(my_mat1 - my_mat2, glm_mat1 - glm_mat2, 4));
         // *
         {
             int temp = rand() % 1000;
             auto temp_glm_mat = glm_mat1;
-            assert(IsMatrixEqual(my_mat1 * temp, temp_glm_mat.operator*=(temp), 4));
+            assert(CheckMatrix(my_mat1 * temp, temp_glm_mat.operator*=(temp), 4));
             temp = rand() % 1000;
             temp_glm_mat = glm_mat2;
-            assert(IsMatrixEqual(my_mat2 * temp, temp_glm_mat.operator*=(temp), 4));
-            assert(IsMatrixEqual(my_mat1 * my_mat2, glm_mat1 * glm_mat2, 4));
-            assert(IsMatrixEqual(my_mat2 * my_mat1, glm_mat2 * glm_mat1, 4));
+            assert(CheckMatrix(my_mat2 * temp, temp_glm_mat.operator*=(temp), 4));
+            assert(CheckMatrix(my_mat1 * my_mat2, glm_mat1 * glm_mat2, 4));
+            assert(CheckMatrix(my_mat2 * my_mat1, glm_mat2 * glm_mat1, 4));
         }
         // Transpose
-        assert(IsMatrixEqual(Transpose(my_mat1), glm::transpose(glm_mat1), 4));
-        assert(IsMatrixEqual(Transpose(my_mat2), glm::transpose(glm_mat2), 4));
+        assert(CheckMatrix(Transpose(my_mat1), glm::transpose(glm_mat1), 4));
+        assert(CheckMatrix(Transpose(my_mat2), glm::transpose(glm_mat2), 4));
         // inverse
-        assert(IsMatrixEqual(Inverse(my_mat1), glm::inverse(glm_mat1), 4));
-        assert(IsMatrixEqual(Inverse(my_mat2), glm::inverse(glm_mat2), 4));
+        assert(CheckMatrix(Inverse(my_mat1), glm::inverse(glm_mat1), 4));
+        assert(CheckMatrix(Inverse(my_mat2), glm::inverse(glm_mat2), 4));
         // Transform
         {
             Vector3 my_vec(rand() % 1000, rand() % 1000, rand() % 1000);
             glm::vec3 glm_temp_vec(my_vec[0], my_vec[1], my_vec[2]);
-            assert(IsMatrixEqual(Transform(my_vec), glm::translate(glm::mat4(1.0f), glm_temp_vec), 4));
+            assert(CheckMatrix(Transform(my_vec), glm::translate(glm::mat4(1.0f), glm_temp_vec), 4));
         }
         // Scale
         {
             Vector3 my_vec(rand() % 1000, rand() % 1000, rand() % 1000);
             glm::vec3 glm_temp_vec(my_vec[0], my_vec[1], my_vec[2]);
-            assert(IsMatrixEqual(Scale(my_vec), glm::scale(glm::mat4(1.0f), glm_temp_vec), 4));
+            assert(CheckMatrix(Scale(my_vec), glm::scale(glm::mat4(1.0f), glm_temp_vec), 4));
         }
         // Rotation
         {
             Vector3 my_vec(rand() % 1000, rand() % 1000, rand() % 1000);
             glm::vec3 glm_temp_vec(my_vec[0], my_vec[1], my_vec[2]);
             float angle = rand() % 1000;
-            assert(IsMatrixEqual(Rotation(my_vec, GetRadians(angle)),
+            assert(CheckMatrix(Rotation(my_vec, GetRadians(angle)),
                                  glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm_temp_vec), 4));
         }
         // CreateViewMatrix
@@ -325,7 +330,7 @@ void MatrixTest() {
             glm::vec3 glm_from_vec(my_from_vec[0], my_from_vec[1], my_from_vec[2]);
             glm::vec3 glm_to_vec(my_to_vec[0], my_to_vec[1], my_to_vec[2]);
 
-            assert(IsMatrixEqual(CreateViewMatrix(my_from_vec, my_to_vec, Vector3(0.0f, 1.0f, 0.0f)),
+            assert(CheckMatrix(CreateViewMatrix(my_from_vec, my_to_vec, Vector3(0.0f, 1.0f, 0.0f)),
                                  glm::lookAt(glm_from_vec, glm_to_vec, glm::vec3(0.0f, 1.0f, 0.0f)), 4));
         }
         //Orthographic
@@ -342,7 +347,7 @@ void MatrixTest() {
             float far = rand() % 1000;
             if (near > far)
                 std::swap(near, far);
-            assert(IsMatrixEqual(Orthographic(left, right, bottom, top, near, far),
+            assert(CheckMatrix(Orthographic(left, right, bottom, top, near, far),
                                  glm::ortho(left, right, bottom, top, near, far), 4));
         }
         //Perspective
@@ -370,11 +375,11 @@ void MatrixTest() {
                 cout << endl;
             }
             cout << endl;
-            assert(IsMatrixEqual(Perspective(GetRadians(fow), ratio, near, far),
+            assert(CheckMatrix(Perspective(GetRadians(fow), ratio, near, far),
                                  glm::perspective(GetRadians(fow), ratio, near, far), 4));
         }
 
     }
 
-    std::cout << "Matrix 1" << std::endl;
+    std::cout << "Matrix success" << std::endl;
 }  

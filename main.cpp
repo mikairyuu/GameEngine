@@ -7,6 +7,7 @@
 #include "imgui-SFML.h"
 
 #include "libs/math/my_math.h"
+#include "libs/math/tests.h"
 #include "render/loader.h"
 
 #include "glm/glm.hpp"
@@ -17,11 +18,11 @@
 using namespace std;
 auto vectorVAO = std::vector<VertexArray>();
 auto vectorVBO = std::vector<VertexBuffer>();
-std::vector<float> deg;
+std::vector<float> angle_vec;
 std::vector<Vector3> scale_vec;
 std::vector<Vector3> translate_vec;
-std::vector<float> spinSpeed;
-std::vector<int> texture_id;
+std::vector<float> spin_speed_vec;
+std::vector<int> texture_id_vec;
 
 std::vector<Vertex> getVertexes(int i) {
     switch (i) {
@@ -173,22 +174,24 @@ void CreateObject(int i) {
     vectorVAO.push_back(VAO);
     vectorVBO.push_back(VBO);
 
-    deg.push_back(0.0f);
+    angle_vec.push_back(0.0f);
     translate_vec.push_back(Vector3(0.0f));
     scale_vec.push_back(Vector3(1.0f));
-    spinSpeed.push_back(0.0f);
-    texture_id.push_back(0);
+    spin_speed_vec.push_back(0.0f);
+    texture_id_vec.push_back(0);
 }
 
 int main() {
 
+    VectorTest();
+    MatrixTest();
     sf::ContextSettings settings;
     settings.depthBits = 24; // количество битов буффера глубины
     settings.stencilBits = 8; //количество битов буфера трафарета
     settings.majorVersion = 4;
     settings.minorVersion = 3;
 
-    sf::RenderWindow window(sf::VideoMode(800, 600, 32), "First Window", sf::Style::Titlebar | sf::Style::Close,
+    sf::RenderWindow window(sf::VideoMode(1024, 720, 32), "First Window", sf::Style::Titlebar | sf::Style::Close,
                             settings);
     window.setActive();
     window.setFramerateLimit(60);
@@ -254,7 +257,7 @@ int main() {
         glEnable(GL_DEPTH_TEST);
 
         for (int i = 0; i < vectorVAO.size(); ++i) {
-            texture_vec[texture_id[i]]->bind();
+            texture_vec[texture_id_vec[i]]->bind();
 
             shaderProgram->bind();
 
@@ -262,18 +265,18 @@ int main() {
 
             Matrix<4, 4> translation = Transform(translate_vec[i]);
 
-            Matrix<4, 4> rotation = Rotation(Vector3(0, 1, 0), GetRadians(deg[i]));
+            Matrix<4, 4> rotation = Rotation(Vector3(0, 1, 0), GetRadians(angle_vec[i]));
 
-            deg[i] += spinSpeed[i];
+            angle_vec[i] += spin_speed_vec[i];
 
             Matrix<4, 4> scale = Scale(scale_vec[i]);
 
             Matrix<4, 4> model;
-            model = CraeteModelMatrix(translation, rotation, scale);// * identity(model);
+            model = CraeteModelMatrix(translation, rotation, scale);
 
             Matrix<4, 4> view = CreateViewMatrix(cameraPos, Vector3(0.0f, 0.0f, 0.0f),
                                                  Vector3(0.0f, 1.0f, 0.0f));
-            Matrix<4, 4> proj = Perspective(GetRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+            Matrix<4, 4> proj = Perspective(GetRadians(45.0f), 1024.0f / 720.0f, 0.1f, 100.0f);
 
             shaderProgram->setUniformVec3("light.ambient", lightAmb);
             shaderProgram->setUniformVec3("light.diffuse", lightDiff);
@@ -294,73 +297,52 @@ int main() {
             vectorVAO[i].unbind();
 
             vectorVBO[i].unbindAttribure();
-            texture_vec[texture_id[i]]->unbind();
+            texture_vec[texture_id_vec[i]]->unbind();
             shaderProgram->unbind();
         }
 
 
-        if (abs(deg[selected_obj]) > 360)
-            deg[selected_obj] = 0.0f;
+        if (abs(angle_vec[selected_obj]) > 360)
+            angle_vec[selected_obj] = 0.0f;
 
         ImGui::SFML::Update(window, deltaClock.restart());
 
-        ImGui::Begin("Window title");
+        ImGui::Begin("Window");
         {
-            static int tabb = 0;
-            ImGui::SameLine();
-            if (ImGui::Button("Scale", ImVec2(150, 25))) {
-                tabb = 0;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Rotate", ImVec2(150, 25))) {
-                tabb = 1;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Translate", ImVec2(150, 25))) {
-                tabb = 2;
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Light", ImVec2(150, 25))) {
-                tabb = 3;
-            }
-            if (tabb == 0) {
-                float scaleV[3] = {scale_vec[selected_obj].x, scale_vec[selected_obj].y, scale_vec[selected_obj].z};
-                if (ImGui::SliderFloat("Scale prop", &scaleV[0], -10.0f, 10.0f)) {
-                    scaleV[1] = scaleV[0];
-                    scaleV[2] = scaleV[0];
-                    scale_vec[selected_obj].x = scaleV[0];
-                    scale_vec[selected_obj].y = scaleV[1];
-                    scale_vec[selected_obj].z = scaleV[2];
-                }
 
-                if (ImGui::SliderFloat3("Scale", scaleV, -10.0f, 10.0f)) {
-                    scale_vec[selected_obj].x = scaleV[0];
-                    scale_vec[selected_obj].y = scaleV[1];
-                    scale_vec[selected_obj].z = scaleV[2];
-                }
+            float scaleV[3] = {scale_vec[selected_obj].x, scale_vec[selected_obj].y, scale_vec[selected_obj].z};
+            if (ImGui::SliderFloat("Scale", &scaleV[0], -10.0f, 10.0f)) {
+                scaleV[1] = scaleV[0];
+                scaleV[2] = scaleV[0];
+                scale_vec[selected_obj].x = scaleV[0];
+                scale_vec[selected_obj].y = scaleV[1];
+                scale_vec[selected_obj].z = scaleV[2];
             }
-            if (tabb == 1) {
-                ImGui::SliderFloat("Degree", &deg[selected_obj], -360.0f, 360.0f);
-                ImGui::SliderFloat("Spin speed", &spinSpeed[selected_obj], -360.0f, 360.0f);
+
+            if (ImGui::SliderFloat3("", scaleV, -10.0f, 10.0f)) {
+                scale_vec[selected_obj].x = scaleV[0];
+                scale_vec[selected_obj].y = scaleV[1];
+                scale_vec[selected_obj].z = scaleV[2];
             }
-            if (tabb == 2) {
-                float transV[3] = {translate_vec[selected_obj].x, translate_vec[selected_obj].y,
-                                   translate_vec[selected_obj].z};
-                if (ImGui::SliderFloat3("Translate vector", transV, -10.0f, 10.0f)) {
-                    translate_vec[selected_obj][0] = transV[0];
-                    translate_vec[selected_obj][1] = transV[1];
-                    translate_vec[selected_obj][2] = transV[2];
-                }
+
+            ImGui::SliderFloat("Rotate", &angle_vec[selected_obj], -360.0f, 360.0f);
+            ImGui::SliderFloat("Rotate speed", &spin_speed_vec[selected_obj], -360.0f, 360.0f);
+
+            float transV[3] = {translate_vec[selected_obj].x, translate_vec[selected_obj].y,
+                               translate_vec[selected_obj].z};
+            if (ImGui::SliderFloat3("Translate", transV, -10.0f, 10.0f)) {
+                translate_vec[selected_obj][0] = transV[0];
+                translate_vec[selected_obj][1] = transV[1];
+                translate_vec[selected_obj][2] = transV[2];
             }
-            if (tabb == 3) {
-                float lightPosV[3] = {lightPos[0], lightPos[1], lightPos[2]};
-                ImGui::SliderFloat("Shininess", &materialShine, 0.0f, 32.0f);
-                if (ImGui::SliderFloat3("LightPos", lightPosV, -10.0f, 10.0f)) {
-                    lightPos[0] = lightPosV[0];
-                    lightPos[1] = lightPosV[1];
-                    lightPos[2] = lightPosV[2];
-                }
+            float lightPosV[3] = {lightPos[0], lightPos[1], lightPos[2]};
+            ImGui::SliderFloat("Shininess", &materialShine, 0.0f, 32.0f);
+            if (ImGui::SliderFloat3("LightPos", lightPosV, -10.0f, 10.0f)) {
+                lightPos[0] = lightPosV[0];
+                lightPos[1] = lightPosV[1];
+                lightPos[2] = lightPosV[2];
             }
+
         }
 
         if (ImGui::Button("Change Object", ImVec2(150, 25))) {
@@ -368,7 +350,7 @@ int main() {
         }
         ImGui::SameLine();
         if (ImGui::Button("Change  texture", ImVec2(150, 25))) {
-            texture_id[selected_obj] = (texture_id[selected_obj] + 1) % texture_vec.size();
+            texture_id_vec[selected_obj] = (texture_id_vec[selected_obj] + 1) % texture_vec.size();
         }
         if (ImGui::Button("Create Cube", ImVec2(150, 25))) {
             CreateObject(1);
@@ -385,9 +367,6 @@ int main() {
         if (ImGui::Button("Create surface", ImVec2(150, 25))) {
             CreateObject(4);
         }
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-                    ImGui::GetIO().Framerate);
         ImGui::End();
 
         ImGui::SFML::Render(window);

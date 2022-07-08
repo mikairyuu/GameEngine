@@ -70,7 +70,7 @@ inline Vector4 Normalize(Vector4 v) {
     return v / v.getLength();
 }
 
-inline float distance(Vector4 v1, Vector4 v2) {
+inline float GetDistance(Vector4 v1, Vector4 v2) {
     return (v2 - v1).getLength();
 }
 
@@ -82,14 +82,6 @@ inline Vector4 operator*(Matrix<4, 4> m, Vector4 v) {
     return res;
 }
 
-template<int M>
-inline Matrix<M, M> Identity(Matrix<M, M> m, float f = 1.0f){
-    Matrix<M, M> out;
-    for (int i = 0; i < M; i++){
-        out[i][i] = f;
-    }
-    return out;
-}
 
 
 template<int M, int N>
