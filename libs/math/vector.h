@@ -7,7 +7,7 @@ class Vector2 {
 
 
 public:
-    float x = 0.0, y = 0.0;
+    float x = 0.0f, y = 0.0f;
 
     Vector2() = default;;
 
@@ -16,10 +16,6 @@ public:
     Vector2(float x, float y) : x(x), y(y) {}
 
     inline float &operator[](int index) {
-        return *(&x + index);
-    }
-
-    inline const float &operator[](int index) const {
         return *(&x + index);
     }
 
@@ -98,10 +94,6 @@ public:
     Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 
     inline float &operator[](int index) {
-        return *(&x + index);
-    }
-
-    inline const float &operator[](int index) const {
         return *(&x + index);
     }
 
@@ -187,9 +179,6 @@ public:
         return *(&x + index);
     }
 
-    inline const float &operator[](int index) const {
-        return *(&x + index);
-    }
 
     inline Vector4 &operator=(Vector4 v) {
         x = v.x;

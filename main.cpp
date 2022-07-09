@@ -185,8 +185,8 @@ void CreateObject(int i) {
 
 int main() {
 
-    VectorTest();
-    MatrixTest();
+    //VectorTest();
+   // MatrixTest();
     sf::ContextSettings settings;
     settings.depthBits = 24; // количество битов буффера глубины
     settings.stencilBits = 8; //количество битов буфера трафарета

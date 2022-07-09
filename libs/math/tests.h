@@ -119,6 +119,8 @@ void VectorTest() {
         assert(my_vec2.getLength() == glm::length(glm_vec2));
         // CrossProduct
         assert(CheckVector(CrossProduct(my_vec1, my_vec2), glm::cross(glm_vec1, glm_vec2), 3));
+        // DotProduct
+        assert(DotProduct(my_vec1, my_vec2) == glm::dot(glm_vec1, glm_vec2));
         // Invert
         assert(CheckVector(my_vec1.getInvertVector(), -glm_vec1, 3));
         assert(CheckVector(~my_vec2, -glm_vec2, 3));

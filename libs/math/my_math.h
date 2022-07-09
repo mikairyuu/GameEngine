@@ -7,9 +7,6 @@ inline float GetRadians(float degree) {
     return M_PI * degree / 180.0f;
 }
 
-inline float ScalarProduct(Vector2 v1, Vector2 v2) {
-    return v1.x * v2.x + v1.y * v2.y;
-}
 
 inline float DotProduct(Vector2 v1, Vector2 v2) {
     return v1.x * v2.x + v1.y * v2.y;
@@ -31,9 +28,6 @@ inline Vector2 operator*(Matrix<2, 2> m, Vector2 v) {
     return res;
 }
 
-inline float ScalarProduct(Vector3 v1, Vector3 v2) {
-    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
 
 inline Vector3 CrossProduct(Vector3 v1, Vector3 v2) {
     return Vector3(v1.y * v2.z - v1.z * v2.y,
@@ -261,7 +255,7 @@ inline Matrix<4, 4> CreateViewMatrix(Vector3 from, Vector3 to, Vector3 worldUp) 
             {right.x,                     up.x,                     -forward.x,                   0},
             {right.y,                     up.y,                     -forward.y,                   0},
             {right.z,                     up.z,                     -forward.z,                   0},
-            {-ScalarProduct(right, from), -ScalarProduct(up, from), ScalarProduct(forward, from), 1}
+            {-DotProduct(right, from), -DotProduct(up, from), DotProduct(forward, from), 1}
     };
     return view;
 }

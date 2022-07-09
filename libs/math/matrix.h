@@ -30,7 +30,6 @@ public:
         for (int i = 0; i < M; i++) {
             if ((list.begin() + i)->size() != N) {
                 cout << "Dimensions are different";
-                //return Matrix();
                 throw;
             }
 
@@ -43,9 +42,6 @@ public:
         return data[index];
     }
 
-    inline const array<float, N> &operator[](const int index) const {
-        return data[index];
-    }
 
     inline Matrix<M, N> operator+(Matrix<M, N> &m) {
         Matrix<M, N> res;
