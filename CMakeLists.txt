@@ -3,7 +3,7 @@ project(GameEngine)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(GameEngine main.cpp libs/math/vector.h libs/math/matrix.h libs/math/my_math.h libs/math/tests.h render/loader.cpp render/loader.h libs/utils/shaderLoader.cpp libs/utils/shaderLoader.h)
+add_executable(GameEngine main.cpp libs/math/vector.h libs/math/matrix.h libs/math/my_math.h libs/math/tests.h render/loader.cpp render/loader.h libs/utils/shaderLoader.cpp libs/utils/shaderLoader.h libs/scene/scene.cpp libs/scene/scene.h libs/scene/object/object.cpp libs/scene/object/object.h)
 find_package(OpenGL)
 include_directories(${OPENGL_INCLUDE_DIRS})
 find_package(GLEW)

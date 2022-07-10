@@ -2,6 +2,7 @@
 #include "../libs/math/my_math.h"
 #include <GL/glew.h>
 #include <vector>
+#pragma once
 
 template<typename T>
 struct Id {
@@ -39,8 +40,9 @@ public:
 
     std::shared_ptr<Shader> load(std::string path);
 
-private:
     ShaderLoader() = default;
+
+private:
 
     static std::unique_ptr<ShaderLoader> instance;
 
@@ -69,10 +71,45 @@ public:
 
     std::shared_ptr<Texture> load(std::string path);
 
+    shared_ptr<Texture> genTexture();
+
 private:
     TextureLoader() = default;
 
     static std::unique_ptr<TextureLoader> instance;
+
+
+};
+
+class TextureHolder {
+public:
+
+    TextureHolder(TextureHolder &) = delete;
+
+    TextureHolder(TextureHolder &&) = delete;
+
+    static TextureHolder &getInstance();
+
+    void add(std::shared_ptr<Texture> texture){
+        texture_vec.push_back(texture);
+    }
+
+    std::shared_ptr<Texture> get(int i){
+        return texture_vec[i];
+    }
+
+    int size(){
+        return texture_vec.size();
+    }
+
+private:
+    std::vector<std::shared_ptr<Texture>> texture_vec;
+
+    TextureHolder() = default;
+
+    static std::unique_ptr<TextureHolder> instance;
+
+
 };
 
 struct Vertex {
@@ -114,7 +151,7 @@ public:
     }
 
     void bindAttribute(int index, int size, int vertSize, intptr_t offset) {
-        glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, vertSize, (void *)(intptr_t)offset);
+        glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, vertSize, (void *) (intptr_t) offset);
         glEnableVertexAttribArray(index);
     }
 
