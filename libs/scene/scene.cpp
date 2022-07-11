@@ -11,21 +11,22 @@ void scene::render() {
 
     glEnable(GL_DEPTH_TEST);
 
-    for (int i = 0; i < objects.size(); ++i) {
-        TextureHolder::getInstance().get(objects[i].texture_id)->bind();
-
-        shaderProgram->bind();
-
-        objects[i].VAO.bind();
-
-        Matrix<4, 4> translation = Transform(objects[i].translate);
+    shaderProgram->bind();
+    for (int i = 0; i < primitives.size(); ++i) {
+         TextureHolder::getInstance().get(primitives[i].texture_id)->bind();
 
 
-        Matrix<4, 4> rotation = Rotation(Vector3(1, 0, 0), GetRadians(objects[selected_obj].angle[0])) *
-                                Rotation(Vector3(0, 1, 0), GetRadians(objects[selected_obj].angle[1])) *
-                                Rotation(Vector3(0, 0, 1), GetRadians(objects[selected_obj].angle[2]));
 
-        Matrix<4, 4> scale = Scale(objects[i].scale);
+        primitives[i].VAO.bind();
+
+        Matrix<4, 4> translation = Transform(primitives[i].translate);
+
+
+        Matrix<4, 4> rotation = Rotation(Vector3(1, 0, 0), GetRadians(primitives[i].angle[0])) *
+                                Rotation(Vector3(0, 1, 0), GetRadians(primitives[i].angle[1])) *
+                                Rotation(Vector3(0, 0, 1), GetRadians(primitives[i].angle[2]));
+
+        Matrix<4, 4> scale = Scale(primitives[i].scale);
 
         Matrix<4, 4> model;
         model = CraeteModelMatrix(translation, rotation, scale);
@@ -50,21 +51,50 @@ void scene::render() {
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        objects[i].VAO.unbind();
+        primitives[i].VAO.unbind();
 
-        objects[i].VBO.unbindAttribure();
-        TextureHolder::getInstance().get(objects[i].texture_id)->unbind();
-        shaderProgram->unbind();
+        primitives[i].VBO.unbindAttribure();
+         TextureHolder::getInstance().get(primitives[i].texture_id)->unbind();
     }
+    for (int i = 0; i < objects.size(); ++i) {
+        auto obj_ = objects[i];
+        Matrix<4, 4> view = CreateViewMatrix(cameraPos, Vector3(0.0f, 0.0f, 0.0f),
+                                             Vector3(0.0f, 1.0f, 0.0f));
+        Matrix<4, 4> proj = Perspective(GetRadians(45.0f), 1024.0f / 720.0f, 0.1f, 100.0f);
+
+        shaderProgram->setUniformVec3("light.ambient", lightAmb);
+        shaderProgram->setUniformVec3("light.diffuse", lightDiff);
+        shaderProgram->setUniformVec3("light.specular", lightSpec);
+        shaderProgram->setUniformVec3("light.position", lightPos);
+
+        shaderProgram->setUniformInt("material.diffuse", 0);
+        shaderProgram->setUniformInt("material.normalMap", 1);
+        shaderProgram->setUniformVec3("material.specular", materialSpec);
+        shaderProgram->setUniformFloat("material.shininess", materialShine);
+
+        shaderProgram->setUniformVec3("viewPos", cameraPos);
+
+        shaderProgram->setUniformMat4("view", view);
+        shaderProgram->setUniformMat4("projection", proj);
+        obj_.bind();
+        Matrix<4, 4> translation = Transform(obj_.get_position());
+        Matrix<4, 4> rotation = Rotation(obj_.get_rotation().spin_vec, GetRadians(obj_.get_rotation().spin_deg));
+        Matrix<4, 4> scale = Scale(obj_.get_scale());
+        Matrix<4, 4> model = CraeteModelMatrix(translation, rotation, scale);
+        shaderProgram->setUniformMat4("model", model);
+        obj_.draw();
+        obj_.unbind();
+    }
+    shaderProgram->unbind();
 
 }
 
-void scene::change_obj() {
-    selected_obj = (select_obj + 1) % objects.size();
+void scene::change_obj(int i) {
+    selected_obj = i;
 }
 
-std::vector<Vertex> scene::getVertexes(primitive primitive) {
-    switch (primitive) {
+std::vector<Vertex> scene::getVertexes(geo_obj obj) {
+    switch (obj) {
         case Cube:
             return {
                     Vertex{Vector3(-0.5f, -0.5f, -0.5f), Vector2(0.0f, 0.0f), Vector3(0.0f, 0.0f, -1.0f)},
@@ -193,23 +223,33 @@ std::vector<Vertex> scene::getVertexes(primitive primitive) {
     }
 }
 
-void scene::CreateObject(primitive primitive) {
-    std::vector<Vertex> vertices = getVertexes(primitive);
+void scene::CreateObject(geo_obj obj) {
+    if (obj != ModelObject) {
+        std::vector<Vertex> vertices = getVertexes(obj);
 
-    VertexArray VAO;
-    VAO.bind();
+        VertexArray VAO;
+        VAO.bind();
 
-    VertexBuffer VBO;
-    VBO.bind(vertices);
+        VertexBuffer VBO;
+        VBO.bind(vertices);
 
-    VBO.bindAttribute(0, 3, sizeof(Vertex), offsetof(Vertex, pos));
-    VBO.bindAttribute(1, 2, sizeof(Vertex), offsetof(Vertex, uv));
-    VBO.bindAttribute(2, 3, sizeof(Vertex), offsetof(Vertex, norm));
+        VBO.bindAttribute(0, 3, sizeof(Vertex), offsetof(Vertex, pos));
+        VBO.bindAttribute(1, 2, sizeof(Vertex), offsetof(Vertex, uv));
+        VBO.bindAttribute(2, 3, sizeof(Vertex), offsetof(Vertex, norm));
 
-    VAO.unbind();
-    VBO.unbind();
+        VAO.unbind();
+        VBO.unbind();
 
-    objects.push_back(object(VAO, VBO));
+        string name = "primitive " + to_string(primitives.size());
+        primitives.push_back(primitive(VAO, VBO, name));
+    } else {
+        Object obj1;
+        obj1.set_name("cottage");
+        obj1.set_model("/home/bender/CLionProjects/GameEngine/res/models/cottage_fbx.fbx");
+        obj1.set_texture("/home/bender/CLionProjects/GameEngine/res/models/cottage_diffuse.png");
+        obj1.set_texture_norm("/home/bender/CLionProjects/GameEngine/res/models/cottage_normal.png");
+        objects.push_back(obj1);
+    }
 }
 
 scene::scene() {
@@ -225,7 +265,8 @@ scene::scene() {
 }
 
 void scene::change_texture() {
-    objects[selected_obj].texture_id = (objects[selected_obj].texture_id + 1) % TextureHolder::getInstance().size();
+    primitives[selected_obj].texture_id =
+            (primitives[selected_obj].texture_id + 1) % TextureHolder::getInstance().size();
 }
 
 

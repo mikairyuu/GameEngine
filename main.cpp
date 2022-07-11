@@ -4,9 +4,8 @@
 #include <iostream>
 #include "imgui.h"
 #include "imgui-SFML.h"
-
+#include "libs/utils/assimpParser.h"
 #include "libs/scene/scene.h"
-
 
 using namespace std;
 
@@ -32,7 +31,7 @@ int main() {
     glewExperimental = GL_TRUE; // включить все современные функции ogl
 
     if (GLEW_OK != glewInit()) { // включить glew
-        cout << "Error:: glew not init =(" << endl;
+        cout << "Error:: glew not init" << endl;
         return -1;
     }
 
@@ -40,15 +39,12 @@ int main() {
 
     auto scene = new class scene();
 
-
     TextureHolder::getInstance().add(
             TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/kolkie.jpg"));
     TextureHolder::getInstance().add(
             TextureLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/img/me.jpg"));
 
-
     bool isGo = true;
-
     sf::Clock deltaClock;
     while (isGo) {
         sf::Event windowEvent{};
@@ -66,7 +62,8 @@ int main() {
                     break;
             }
         }
-        auto selected_obj = scene->objects[scene->selected_obj];
+        auto selected_obj = scene->primitives[scene->selected_obj];
+
 
         scene->render();
 
@@ -108,16 +105,26 @@ int main() {
 
         }
 
-        if (ImGui::Button("Change Object", ImVec2(150, 25))) {
-            scene->change_obj();
+        if (ImGui::BeginCombo("ObjectList", selected_obj.name.c_str())) {
+            if (scene->primitives.size() > 1)
+                for (int i = 0; i < scene->primitives.size(); i++) {
+                    if (ImGui::Selectable(scene->primitives[i].name.c_str())) {
+                        scene->change_obj(i);
+                    }
+                }
+            ImGui::EndCombo();
         }
-        ImGui::SameLine();
+
         if (ImGui::Button("Change  texture", ImVec2(150, 25))) {
             scene->change_texture();
         }
         ImGui::SameLine();
         if (ImGui::Button("Add  texture", ImVec2(150, 25))) {
             TextureHolder::getInstance().add(TextureLoader::getInstance().genTexture());
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Create ModelObject", ImVec2(150, 25))) {
+            scene->add_object(ModelObject);
         }
         if (ImGui::Button("Create Cube", ImVec2(150, 25))) {
             scene->add_object(Cube);

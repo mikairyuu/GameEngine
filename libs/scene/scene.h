@@ -8,13 +8,14 @@
 
 
 #include <vector>
-#include "object/object.h"
+#include "object/primitive.h"
 #include "../math/vector.h"
 #include "../../render/loader.h"
 
-enum primitive {
-    Cube, Sphere, Tetrahedron, Surface
+enum geo_obj {
+    Cube, Sphere, Tetrahedron, Surface,ModelObject
 };
+
 class scene {
 
 
@@ -28,41 +29,51 @@ class scene {
 
 
 public:
-    std::shared_ptr<Shader> shaderProgram = ShaderLoader::getInstance().load("/home/bender/CLionProjects/GameEngine/res/shaders/shader");
+    std::shared_ptr<Shader> shaderProgram = ShaderLoader::getInstance().load(
+            "/home/bender/CLionProjects/GameEngine/res/shaders/shader");
 
     float materialShine;
     Vector3 lightPos;
-    std::vector<object> objects;
+    std::vector<primitive> primitives;
+    std::vector<Object> objects;
     int selected_obj;
 
     scene();
 
-    void add_object(primitive primitive) {
-        CreateObject(primitive);
+    void add_object(geo_obj obj) {
+        CreateObject(obj);
     }
 
     void scale_obj(Vector3 scale) {
-        objects[selected_obj].scale = scale;
+        primitives[selected_obj].scale = scale;
     }
 
     void rotate_obj(Vector3 angle) {
-        objects[selected_obj].angle = angle;
+        primitives[selected_obj].angle = angle;
     }
 
     void translate_obj(Vector3 translate) {
-        objects[selected_obj].translate = translate;
+        primitives[selected_obj].translate = translate;
     }
 
-    void change_obj();
+    void change_obj(int i);
 
     void change_texture();
 
     void render();
 
-private:
-    std::vector<Vertex> getVertexes(primitive primitive);
+    vector<string> getNames() {
+        vector<string> res;
+        for (int i = 0; i < primitives.size(); ++i) {
+            res.push_back(primitives[i].name);
+        }
+        return res;
+    }
 
-    void CreateObject(primitive primitive);
+private:
+    std::vector<Vertex> getVertexes(geo_obj obj);
+
+    void CreateObject(geo_obj obj);
 
 };
 
